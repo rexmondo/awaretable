@@ -1,0 +1,12 @@
+{
+  "name": "awaretable",
+  "version": "0.0.0",
+  "description": "Aware Presentation Table",
+  "dependencies": {
+    "gulp": "~3.9.0",
+    "gulp-babel": "~5.2.0",
+    "gulp-concat": "~2.6.0",
+    "gulp-sourcemaps": "~1.5.2",
+    "gulp-sass": "~2.0.4"
+  }
+}
