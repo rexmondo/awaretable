@@ -2,7 +2,8 @@ var gulp = require('gulp')
   , sourcemaps = require('gulp-sourcemaps')
   , babel = require('gulp-babel')
   , concat = require('gulp-concat')
-  , sass = require('gulp-sass');
+  , sass = require('gulp-sass')
+  , plumber = require('gulp-plumber');
 
 gulp.task('default', function () {
   gulp.watch('./src/scss/**', ['sass']);
@@ -11,10 +12,11 @@ gulp.task('default', function () {
 
 gulp.task('sass', function() {
   gulp.src('./src/scss/style.scss')
+    .pipe(plumber())
     .pipe(sourcemaps.init())
-    .pipe(sass({ indentedSyntax: true }))
+    .pipe(sass({ indentedSyntax: true }).on('error', sass.logError))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('./app/css/'));
+    .pipe(gulp.dest('./app/css'));
 });
 
 gulp.task('babel', function () {
