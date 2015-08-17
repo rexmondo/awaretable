@@ -1,0 +1,8 @@
+server {
+  server_name awaretable-prod;
+  root /var/www/awaretable/app;
+  index index.html;
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+}
