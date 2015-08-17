@@ -11,9 +11,24 @@ var Main;
   // Define main application.
   Main = React.createClass({
 
+    setFilter: function(e) {
+      this.setState({filterValue: e.target.value});
+    },
+
+    setFilterType: function(e) {
+      this.setState({filterType: e.target.value});
+    },
+
+    setHeaderRepeat: function(e) {
+      this.setState({headerRepeat: parseInt(e.target.value)});
+    },
+
     getInitialState: function() {
       return {
-        rows: []
+        rows: [],
+        filterValue: '',
+        filterType: 'first_name',
+        headerRepeat: 10
       }
     },
 
@@ -24,25 +39,33 @@ var Main;
         }.bind(this))
         .fail(function(err) {
           console.error('There was an error loading table data');
-        }.bind(this));
+        });
     },
 
     render: function() {
-      var rowsMarkup = []
+      var renderRows = this.state.rows
+        , filteredRows
+        , rowsMarkup = []
         , headerRow = (
-          <tr className="header">
-            <th>Id</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>E-mail</th>
-            <th>Country</th>
-            <th>IP Address</th>
-          </tr>
-        );
+            <tr className="header">
+              <th>Id</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>E-mail</th>
+              <th>Country</th>
+              <th>IP Address</th>
+            </tr>
+          )
+        , filterRegex = new RegExp(this.state.filterValue);
 
-        // output rows
-        $.each(this.state.rows, function (i, row) {
-          if((i % 10 === 0) && (i !== 0)) {
+        // filter rows
+        filteredRows = renderRows.filter(function(row) {
+          return (row[this.state.filterType].match(filterRegex) !== null);
+        }.bind(this));
+
+        // build table rows
+        $.each(filteredRows, function (i, row) {
+          if((i % this.state.headerRepeat === 0) && (i !== 0)) {
             rowsMarkup.push(headerRow);
           }
           rowsMarkup.push(
@@ -54,11 +77,22 @@ var Main;
               <td>{row.country}</td>
               <td>{row.ip_address}</td>
             </tr>
-          )
-      });
+          );
+      }.bind(this));
         
       return (
         <div className="applicationInner">
+          <input type="textfield" placeholder="Filter" onChange={this.setFilter}></input>
+          <span className="form-explain filter"> By: </span>
+          <select value={this.state.filterType} onChange={this.setFilterType}>
+            <option value="first_name">First Name</option>
+            <option value="last_name">Last Name</option>
+            <option value="email">E-mail</option>
+            <option value="country">Country</option>
+            <option value="ip_address">IP Address</option>
+          </select>
+          <span className="form-explain repeat"> Header Repeat: </span>
+          <input type="number" value={this.state.headerRepeat} min="5" max="20" step="1" onChange={this.setHeaderRepeat}></input>
           <table>
             <thead>
               {headerRow}

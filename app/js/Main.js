@@ -14,22 +14,39 @@ var Main;
   Main = React.createClass({
     displayName: 'Main',
 
+    setFilter: function setFilter(e) {
+      this.setState({ filterValue: e.target.value });
+    },
+
+    setFilterType: function setFilterType(e) {
+      this.setState({ filterType: e.target.value });
+    },
+
+    setHeaderRepeat: function setHeaderRepeat(e) {
+      this.setState({ headerRepeat: parseInt(e.target.value) });
+    },
+
     getInitialState: function getInitialState() {
       return {
-        rows: []
+        rows: [],
+        filterValue: '',
+        filterType: 'first_name',
+        headerRepeat: 10
       };
     },
 
     componentDidMount: function componentDidMount() {
       $.getJSON('/MOCK_DATA.json').done((function (res) {
         this.setState({ rows: res });
-      }).bind(this)).fail((function (err) {
+      }).bind(this)).fail(function (err) {
         console.error('There was an error loading table data');
-      }).bind(this));
+      });
     },
 
     render: function render() {
-      var rowsMarkup = [],
+      var renderRows = this.state.rows,
+          filteredRows,
+          rowsMarkup = [],
           headerRow = React.createElement(
         'tr',
         { className: 'header' },
@@ -63,11 +80,17 @@ var Main;
           null,
           'IP Address'
         )
-      );
+      ),
+          filterRegex = new RegExp(this.state.filterValue);
 
-      // output rows
-      $.each(this.state.rows, function (i, row) {
-        if (i % 10 === 0 && i !== 0) {
+      // filter rows
+      filteredRows = renderRows.filter((function (row) {
+        return row[this.state.filterType].match(filterRegex) !== null;
+      }).bind(this));
+
+      // build table rows
+      $.each(filteredRows, (function (i, row) {
+        if (i % this.state.headerRepeat === 0 && i !== 0) {
           rowsMarkup.push(headerRow);
         }
         rowsMarkup.push(React.createElement(
@@ -104,11 +127,52 @@ var Main;
             row.ip_address
           )
         ));
-      });
+      }).bind(this));
 
       return React.createElement(
         'div',
         { className: 'applicationInner' },
+        React.createElement('input', { type: 'textfield', placeholder: 'Filter', onChange: this.setFilter }),
+        React.createElement(
+          'span',
+          { className: 'form-explain filter' },
+          ' By: '
+        ),
+        React.createElement(
+          'select',
+          { value: this.state.filterType, onChange: this.setFilterType },
+          React.createElement(
+            'option',
+            { value: 'first_name' },
+            'First Name'
+          ),
+          React.createElement(
+            'option',
+            { value: 'last_name' },
+            'Last Name'
+          ),
+          React.createElement(
+            'option',
+            { value: 'email' },
+            'E-mail'
+          ),
+          React.createElement(
+            'option',
+            { value: 'country' },
+            'Country'
+          ),
+          React.createElement(
+            'option',
+            { value: 'ip_address' },
+            'IP Address'
+          )
+        ),
+        React.createElement(
+          'span',
+          { className: 'form-explain repeat' },
+          ' Header Repeat: '
+        ),
+        React.createElement('input', { type: 'number', value: this.state.headerRepeat, min: '5', max: '20', step: '1', onChange: this.setHeaderRepeat }),
         React.createElement(
           'table',
           null,

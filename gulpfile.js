@@ -2,21 +2,27 @@ var gulp = require('gulp')
   , sourcemaps = require('gulp-sourcemaps')
   , babel = require('gulp-babel')
   , concat = require('gulp-concat')
-  , sass = require('gulp-sass')
-  , plumber = require('gulp-plumber');
+  , sass = require('gulp-sass');
 
 gulp.task('default', function () {
-  gulp.watch('./src/scss/**', ['sass']);
+  gulp.watch('./src/scss/**', ['sass', 'sass-dev']);
   gulp.watch('./src/js/*.jsx', ['babel']);
 });
 
 gulp.task('sass', function() {
   gulp.src('./src/scss/style.scss')
-    .pipe(plumber())
     .pipe(sourcemaps.init())
-    .pipe(sass({ indentedSyntax: true }).on('error', sass.logError))
+    .pipe(sass().on('error', sass.logError))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('./app/css'));
+    .pipe(gulp.dest('./app/css/'));
+});
+
+gulp.task('sass-dev', function() {
+  gulp.src('./src/scss/style.scss')
+    .pipe(sourcemaps.init())
+    .pipe(sass().on('error', sass.logError))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest('./src/css/'));
 });
 
 gulp.task('babel', function () {
